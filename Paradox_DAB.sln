@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.30501.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Paradox_DAB", "Paradox_DAB\Paradox_DAB.vcxproj", "{0DAE3503-9C7B-4A3F-80D1-785373471365}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug NoHash|Win32 = Debug NoHash|Win32
+		Debug|Win32 = Debug|Win32
+		NoHash|Win32 = NoHash|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0DAE3503-9C7B-4A3F-80D1-785373471365}.Debug NoHash|Win32.ActiveCfg = Debug|Win32
+		{0DAE3503-9C7B-4A3F-80D1-785373471365}.Debug|Win32.ActiveCfg = Debug|Win32
+		{0DAE3503-9C7B-4A3F-80D1-785373471365}.Debug|Win32.Build.0 = Debug|Win32
+		{0DAE3503-9C7B-4A3F-80D1-785373471365}.NoHash|Win32.ActiveCfg = Release|Win32
+		{0DAE3503-9C7B-4A3F-80D1-785373471365}.Release|Win32.ActiveCfg = Release|Win32
+		{0DAE3503-9C7B-4A3F-80D1-785373471365}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

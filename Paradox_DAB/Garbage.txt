@@ -1,0 +1,264 @@
+/*int Board::GetAllMoves(MOVE Moves[MOVENUM],int Player)
+{
+	//用参数传入一个招式数组。然后这个数组会被修改为所有可行的边的坐标。[][0]=X.[0][1]=Y，函数返回值为空白边总数量。
+	int MoveNum = 0;
+	for(int j = 0;j<LEN;j++)
+	{
+		for(int i=0;i<LEN;i++)
+		{
+			if(board[i][j]==EDGE)
+			{
+				Moves[MoveNum].set(i,j,Player);
+				MoveNum++;
+			}
+		}
+	}
+	return MoveNum;
+}*/
+
+bool Board::Move(MOVE M)
+{
+	bool GetBoxes = false;
+	Step++;
+	int owner = M.player;
+	int x = M.x;
+	int y = M.y;
+	if(GetEdgeLegality(x,y)&&(owner==RED||owner==BLUE)&&x>=0&&x<=(LEN-1)&&y>=0&&y<=(LEN-1))
+	{
+		int ex,ey;
+		board[x][y] = owner;//把这个边填满
+		//检查一下四个方向有没有被填满但还没有被占领的各自，占领他。
+		if(IfOddNumber(x)&&IfEvenNumber(y))//X奇数Y偶数，横行
+		{
+			if(y==0)
+			{
+				ex = x;ey = y+1;
+				if(board[ex][ey]==BOX&&GetBoxLiberties(ex,ey)==0)
+				{
+					board[ex][ey] = owner*2;
+					GetBoxes = true;
+				}
+			}
+			else if(y==LEN)
+			{
+				ex = x;ey = y-1;
+				if(board[ex][ey]==BOX&&GetBoxLiberties(ex,ey)==0)
+				{
+					board[ex][ey] = owner*2;
+					GetBoxes = true;
+				}
+			}
+			else
+			{
+				ex = x;ey = y+1;
+				if(board[ex][ey]==BOX&&GetBoxLiberties(ex,ey)==0)
+				{
+					board[ex][ey] = owner*2;
+					GetBoxes = true;
+				}
+				ex = x;ey = y-1;
+				if(board[ex][ey]==BOX&&GetBoxLiberties(ex,ey)==0)
+				{
+					board[ex][ey] = owner*2;
+					GetBoxes = true;
+				}
+			}
+		}
+		else if(IfEvenNumber(x)&&IfOddNumber(y))//X偶数Y奇数，竖行
+		{
+			if(x==0)
+			{
+				ex = x+1;ey = y;
+				if(board[ex][ey]==BOX&&GetBoxLiberties(ex,ey)==0)
+				{
+					board[ex][ey] = owner*2;
+					GetBoxes = true;
+				}
+			}
+			else if(x==LEN)
+			{
+				ex = x-1;ey = y;
+				if(board[ex][ey]==BOX&&GetBoxLiberties(ex,ey)==0)
+				{
+					board[ex][ey] = owner*2;
+					GetBoxes = true;
+				}
+			}
+			else
+			{
+				ex = x+1;ey = y;
+				if(board[ex][ey]==BOX&&GetBoxLiberties(ex,ey)==0)
+				{
+					board[ex][ey] = owner*2;
+					GetBoxes = true;
+				}
+				ex = x-1;ey = y;
+				if(board[ex][ey]==BOX&&GetBoxLiberties(ex,ey)==0)
+				{
+					board[ex][ey] = owner*2;
+					GetBoxes = true;
+				}
+			}
+		}
+		return GetBoxes;
+	}
+	return GetBoxes;
+}
+
+
+
+
+
+//MOVE表示一步。
+class MOVE
+{
+public:
+	int x;
+	int y;
+	int player;
+	void set(int mx,int my,int p);
+};
+
+void MOVE::set(int mx,int my,int p)
+{
+	x = mx;
+	y = my;
+	player = p;
+}
+
+
+int Board::GetAllTurns(TURN Turns[MOVENUM], int Player)
+{
+	int TurnNum = 0;
+	Board ChosenBoard(board, Step);//建立模拟棋盘
+	GetAllCTypeBoxes(Player);
+	for (int j = 0; j<LEN; j++)
+	{
+		for (int i = 0; i<LEN; i++)
+		{
+			if (board[i][j] == EDGE)
+			{
+				Board Test(ChosenBoard.board, ChosenBoard.Step);
+				//Test.Move(i, j, Player);							//玩家就走这一步试试
+				Turns[TurnNum].Owner = Player;						//这一轮的属主是该玩家
+				Turns[TurnNum].SetBoard(board);						//存入新局面
+				Turns[TurnNum].NewBoard[i][j] = Player;
+				//Turns[TurnNum].SetCaptualInfo(board, Test.board);	//存入招法
+				TurnNum++;											//总数目自增
+			}
+		}
+	}
+	return TurnNum;
+}
+int Board::GetFilterTurn(TURN Turns[MOVENUM], int Player)
+{
+	int TurnNum = 0;
+	Board ChosenBoard(board, Step);//建立模拟棋盘
+	for (;;)//直到无法占据CTypeBox了就结束
+	{
+		if (!ChosenBoard.GetCTypeBox(Player, false))
+			break;
+	}
+	//此时的ChosenBoard是标准局面，需要做一个选择
+	for (int y = 0; y < LEN; y++)
+	{
+		for (int x = 0; x < LEN; x++)
+		{
+			if (board[x][y] == EDGE)//若为空白边
+			{
+				Board Test(ChosenBoard.board, ChosenBoard.Step);
+				Test.Move(x, y, Player);//玩家模拟走一步试试
+				if (!Test.GetLongCTypeBoxExist())//若不存在长死格，也就是只有单链或者没有死格
+				{
+					//存入TURN
+					Turns[TurnNum].Owner = Player;						//这一轮的属主是该玩家
+					Turns[TurnNum].SetBoard(Test.board);				//存入新局面
+					Turns[TurnNum].SetCaptualInfo(board, Test.board);	//存入招法
+					TurnNum++;//总数目自增
+				}
+			}
+		}
+	}
+
+	return TurnNum;
+}
+
+
+
+bool RndFreeMove(Board &CB, int Player, bool Msg)
+{
+	LOC FreeEdge[MOVENUM];
+	int MoveNum = CB.GetAllFreeEdge(FreeEdge);
+	if (MoveNum == 0)
+	{
+		cout << "RndFreeMove函数中的MoveNum =0" << endl;
+		CB.PrintBoard();
+		system("pause");
+	}
+	int Rnd = rand() % MoveNum;//在0-MoveNum中抽取一个随机数
+	bool GetBoxes = CB.Move(FreeEdge[Rnd].x, FreeEdge[Rnd].y, Player);
+	
+}
+void RndFreeTurn(Board &CB, int Player, bool Msg)
+{
+	//与RndFreeMove的最大区别就在于，其本身会先将所有的C型格吃完再开始考虑随机占领自由边
+	for (;;)//直到无法占据CTypeBox了就结束
+	{
+		if (!CB.GetCTypeBox(Player,Msg))
+			break;
+	}
+
+
+
+	if (Msg)
+	{
+	}
+}
+
+
+
+
+/*UCTNode UCTB;
+	if (SearchingUCTNode(CurrentUCTNode, CB.board,Player, 4))
+	{
+		UCTB = *CurrentUCTNode;
+		cout << "找到了新局面，其值为" << 1 - UCTB.AvgValue <<"      局面为"<< endl;
+		UCTB.ShowLiberties();
+	}
+	else
+	{
+		UCTB = UCTNode(Player, CB.board, CB.Step);//根据当前局面创建UCT的根节点
+		cout << "没找到新局面！" << endl;
+	}*/
+
+
+	Old Filter
+
+	/*int Board::GetFilterMoves(LOC Moves[MOVENUM])
+{
+	int MoveNum = 0;
+	for (int y = 0; y < LEN; y++)
+	{
+		for (int x = 0; x < LEN; x++)
+		{
+			if (board[x][y] == EDGE)//若为空白边
+			{
+				//Board Test(board,Step);
+				int BoardSave[LEN][LEN];
+				int CurrentStep = Step;
+				BoardCopy(board, BoardSave);	//保存一下
+				Move(x, y, RED);				//玩家模拟走一步试试
+				if (!GetLongCTypeBoxExist())	//若不存在长死格，也就是只有单链或者没有死格
+				{
+					//存入TURN
+					Moves[MoveNum].Set(x, y);
+					MoveNum++;//总数目自增
+				}
+				SetBoard(BoardSave);			//还原
+				Step = CurrentStep;				//还原
+			}
+		}
+	}
+
+	return MoveNum;
+}*/
